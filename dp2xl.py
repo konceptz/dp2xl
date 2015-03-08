@@ -29,7 +29,7 @@ class cveClass:
     score = 0.0
     severity = ""
     description = ""
-    exploit = False
+    exploit = "Undetermined"
     def setName(self, name):
         self.name = name
         pass
@@ -78,14 +78,15 @@ def main():
     #Check for file, filesystem write priv and connectivity
     try:
         xmldoc = minidom.parse(sys.argv[1])
+        print ("Parsing XML Data..")
+        dependencies = xmldoc.getElementsByTagName("dependency")
+        pass
     except IOError:
         print "Failed to read file, quitting"
         quit()
         pass
 
-    dependencies = xmldoc.getElementsByTagName("dependency")
     allcves = []
-    print ("Parsing XML Data..  Finding Exploits...  This may take a long time ")
     for dependency in dependencies:
         vulnerabilities = dependency.getElementsByTagName("vulnerability")
         if len(vulnerabilities) > 0:
@@ -96,8 +97,15 @@ def main():
                 tempcve.setDescription(vulnerability.getElementsByTagName("description")[0].firstChild.data)
                 tempcve.setSeverity(vulnerability.getElementsByTagName("severity")[0].firstChild.data)
                 tempcve.setCompnent(dependency.getElementsByTagName("fileName")[0].firstChild.data)
-                tempcve.findExploit()
                 allcves.append(copy.copy(tempcve))
+                pass
+            pass
+        pass
+
+    print "Searching for Exploits"
+    for cve in allcves:
+        cve.findExploit()
+        pass
 
     print ("creating excel")
     workbook = xlsxwriter.Workbook(sys.argv[2])
